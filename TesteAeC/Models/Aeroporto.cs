@@ -1,8 +1,15 @@
-﻿namespace TesteAeC.Models
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace TesteAeC.Models
 {
+    [Table("Aeroporto")]
     public class Aeroporto
     {
+        [Key]
         public int Id { get; set; }
+        [Required]
+        [MaxLength(4, ErrorMessage = "O contúdo da mensagem não pode ter mais que 4 caracteres")]
         public string CodigoIcao { get; set; }
         public DateTime AtualizadoEm { get; set; }
         public int PressaoAtmosferica { get; set; }

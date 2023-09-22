@@ -1,7 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using FluentResults;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using System.Text.RegularExpressions;
+using TesteAeC.Data.Dtos.Aeroporto;
 using TesteAeC.Data.Dtos.Cidades;
 using TesteAeC.External;
 using TesteAeC.Services;
+using TesteAeC.Services.Implementations;
 
 namespace TesteAeC.Controllers
 {
@@ -25,24 +30,26 @@ namespace TesteAeC.Controllers
             return await _cidadeExternalServices.RetornaListaDeCidades();
         }
 
-        [HttpGet]
-        [Route("listar_consultas_realizadas")]
-        public async Task<List<ReadCidade?>> ListarCidadesConsultadas()
-        {
-            return await _cidadeServices.ListarConsultasRealizadasEmCidades();
-        }
-
 
         [HttpGet]
         [Route("consultar_clima_por_codigo_cidade")]
-        public async Task<ReadCidadeClima?> ConsultaCidade(int code)
+        public async Task<Result<ReadCidadeClima?>> ConsultaCidade(string code)
         {
-            var resultado = await _cidadeExternalServices.RetornaCidadePorCodigo(code);
+            
+            if (Regex.IsMatch(code, @"^\d+$")  && !string.IsNullOrEmpty(code.ToString()))
+            {
+                ReadCidadeClima resultado = await _cidadeExternalServices.RetornaCidadePorCodigo(Convert.ToInt32(code));
 
-            if (resultado != null)
-                await _cidadeServices.SalvarCidadeConsultada(resultado);
+                if (!string.IsNullOrEmpty(resultado.cidade))
+                {
+                    var resultadobd = await _cidadeServices.SalvarCidadeConsultada(resultado);
 
-            return resultado;
+                    if (resultadobd.IsSuccess)
+                        return Result.Ok(resultado);
+                    return Result.Fail("Erro ao salvar registro na base de dados");
+                }
+            }
+            return Result.Fail("Código informado deve conter apenas números e não ser nulo");
         }
     }
 }

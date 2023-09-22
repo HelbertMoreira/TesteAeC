@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using FluentResults;
+using Serilog;
 using TesteAeC.Data;
 using TesteAeC.Data.Dtos.Aeroporto;
 using TesteAeC.Models;
@@ -16,24 +18,22 @@ namespace TesteAeC.Services.Implementations
             _context = context;
         }
 
-        public Task<List<ReadAeroporto?>> ListarConsultasRealizadasEmAeroportos()
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<ReadAeroporto> SalvarAeroportoConsultado(ReadAeroporto consultaAeroporto)
+        public async Task<Result> SalvarAeroportoConsultado(ReadAeroporto consultaAeroporto)
         {
             try
             {
                 var aeroporto = _mapper.Map<Aeroporto>(consultaAeroporto);
                 await _context.Aeroportos.AddAsync(aeroporto);
                 await _context.SaveChangesAsync();
-                
-                return _mapper.Map<ReadAeroporto>(aeroporto);
+
+                Log.Information("Inserindo LOG de sucesso");
+                return Result.Ok();
+
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                Log.Error("Erro ao salvar consulta em AEROPORTO. Erro: " + ex.Message);
+                return Result.Fail($"Erro ao salvar consulta em AEROPORTO. Erro: {ex.Message}");
             }
         }
     }

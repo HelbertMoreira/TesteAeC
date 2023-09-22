@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
+using FluentResults;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 using TesteAeC.Data;
 using TesteAeC.Data.Dtos.Cidades;
 using TesteAeC.Models;
@@ -17,22 +19,8 @@ namespace TesteAeC.Services.Implementations
             _context = context;
         }
 
-        public async Task<List<ReadCidade?>> ListarConsultasRealizadasEmCidades()
-        {
-            try
-            {
-                var result = await _context.Localidades
-                    .Include(x => x.Clima)
-                    .ToListAsync();
-                return _mapper.Map<List<ReadCidade?>>(result);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
 
-        public async Task<ReadCidade> SalvarCidadeConsultada(ReadCidadeClima localidade)
+        public async Task<Result> SalvarCidadeConsultada(ReadCidadeClima localidade)
         {
             try
             {
@@ -40,13 +28,15 @@ namespace TesteAeC.Services.Implementations
                 await _context.Localidades.AddAsync(cidade);
                 await _context.SaveChangesAsync();
 
-                return _mapper.Map<ReadCidade>(cidade);
+                Log.Information("Inserindo LOG de sucesso");
+                return Result.Ok();
+
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                Log.Error("Erro ao salvar consulta em clima por CIDADES. Erro: " + ex.Message);
+                return Result.Fail($"Erro ao salvar consulta em AEROPORTO. Erro: {ex.Message}");
             }
-
         }
     }
 }

@@ -1,5 +1,7 @@
 ﻿
+using FluentResults;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.RegularExpressions;
 using TesteAeC.Data.Dtos.Aeroporto;
 using TesteAeC.External;
 using TesteAeC.Services;
@@ -21,22 +23,24 @@ namespace TesteAeC.Controllers
             _aeroportoServices = aeroportoServices;
         }
 
-        [HttpGet("listar_consultas_realizadas")]
-        public async Task<List<ReadAeroporto?>> ListarAeroportosSalvos()
-        {
-            return await _aeroportoServices.ListarConsultasRealizadasEmAeroportos();
-        }
-
         
         [HttpGet("consultar_clima_aeroporto")]
-        public async Task<ReadAeroporto?> ConsultaAeroporto(string code)
-        {
-            var resultado =  await _aeroportoExternalServices.RetornaAeroportoPorCodigo(code);
+        public async Task<Result> ConsultaAeroporto(string code)
+        {             
+            if (Regex.IsMatch(code, @"(?i)^[a-záéíóúõãçàâêôA-ZÁÉÍÓÚÕÃÇÂÊÔ]+$") && !string.IsNullOrEmpty(code))
+            {
+                ReadAeroporto resultado = await _aeroportoExternalServices.RetornaAeroportoPorCodigo(code);
 
-            if (resultado != null)
-                await _aeroportoServices.SalvarAeroportoConsultado(resultado);
+                if (!string.IsNullOrEmpty(resultado.codigo_icao))
+                {
+                    var resultadobd = await _aeroportoServices.SalvarAeroportoConsultado(resultado);
 
-            return resultado;
+                    if (resultadobd.IsSuccess)
+                        return Result.Ok();
+                    return Result.Fail("Erro ao salvar registro na base de dados");
+                }
+            }
+            return Result.Fail("Código informado deve conter apenas caracteres e não ser nulo");
         }
     }
 }

@@ -12,8 +12,8 @@ using TesteAeC.Data;
 namespace TesteAeC.Migrations
 {
     [DbContext(typeof(AplicationContext))]
-    [Migration("20230922022404_Primeira migration")]
-    partial class Primeiramigration
+    [Migration("20230922173151_Inicial")]
+    partial class Inicial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -34,19 +34,20 @@ namespace TesteAeC.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("AtualizadoEm")
-                        .HasColumnType("DATETIME");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("CodigoIcao")
                         .IsRequired()
-                        .HasColumnType("VARCHAR(5)");
+                        .HasMaxLength(4)
+                        .HasColumnType("nvarchar(4)");
 
                     b.Property<string>("Condicao")
                         .IsRequired()
-                        .HasColumnType("CHAR(2)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CondicaoDesc")
                         .IsRequired()
-                        .HasColumnType("VARCHAR(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("DirecaoVento")
                         .HasColumnType("int");
@@ -65,14 +66,11 @@ namespace TesteAeC.Migrations
 
                     b.Property<string>("Visibilidade")
                         .IsRequired()
-                        .HasColumnType("VARCHAR(7)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CodigoIcao")
-                        .HasDatabaseName("idx_aeroporto_codigo");
-
-                    b.ToTable("Aeroporto", (string)null);
+                    b.ToTable("Aeroporto");
                 });
 
             modelBuilder.Entity("TesteAeC.Models.Cidade", b =>
@@ -84,22 +82,21 @@ namespace TesteAeC.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("AtualizadoEm")
-                        .HasColumnType("DATETIME");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Estado")
                         .IsRequired()
-                        .HasColumnType("VARCHAR(30)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("NomeCidade")
                         .IsRequired()
-                        .HasColumnType("VARCHAR(30)");
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasColumnName("Cidade");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("NomeCidade")
-                        .HasDatabaseName("idx_localidade_cidade");
-
-                    b.ToTable("Cidade", (string)null);
+                    b.ToTable("Cidade");
                 });
 
             modelBuilder.Entity("TesteAeC.Models.Clima", b =>
@@ -115,15 +112,14 @@ namespace TesteAeC.Migrations
 
                     b.Property<string>("Condicao")
                         .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CondicaoDesc")
                         .IsRequired()
-                        .HasColumnType("VARCHAR(30)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("Data")
-                        .HasColumnType("DATETIME");
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("IndiceUv")
                         .HasColumnType("int");
@@ -138,7 +134,7 @@ namespace TesteAeC.Migrations
 
                     b.HasIndex("CidadeId");
 
-                    b.ToTable("Clima", (string)null);
+                    b.ToTable("Clima");
                 });
 
             modelBuilder.Entity("TesteAeC.Models.Clima", b =>

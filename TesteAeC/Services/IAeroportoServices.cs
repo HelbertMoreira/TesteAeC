@@ -1,10 +1,10 @@
-﻿using TesteAeC.Data.Dtos.Aeroporto;
+﻿using FluentResults;
+using TesteAeC.Data.Dtos.Aeroporto;
 
 namespace TesteAeC.Services
 {
     public interface IAeroportoServices
     {
-        Task<ReadAeroporto> SalvarAeroportoConsultado(ReadAeroporto consultaAeroporto);
-        Task<List<ReadAeroporto?>> ListarConsultasRealizadasEmAeroportos();
+        Task<Result> SalvarAeroportoConsultado(ReadAeroporto consultaAeroporto);
     }
 }
